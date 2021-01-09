@@ -11,7 +11,7 @@ public class DBmanager {
 	private String url = "jdbc:mysql://localhost/Covid19?serverTimezone=Asia/Seoul";
 	
 	
-	void createTable() { // 吏��뿭, 蹂묒썝, 援�媛� �뀒�씠釉� �깮�꽦 硫붿냼�뱶
+	void createTable() { // 지역, 병원, 국가 테이블 생성 메소드
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			cnt = DriverManager.getConnection(url,user,pw);
@@ -55,14 +55,14 @@ public class DBmanager {
 		}
 	}
 	
-	String Query(String tag) { // 援��궡 吏��뿭�씠由�,援�媛��씠由�,�궇吏�,蹂묒썝�젙蹂� 由ы꽩�븯�뒗 硫붿냼�뱶
+	String Query(String tag) { // 국내 지역이름,국가이름,날짜,병원정보 리턴하는 메소드
 		String str = "";
 		String date = null;
 		
 		try {
 			cnt = DriverManager.getConnection(url,user,pw);
 			stmt = cnt.createStatement();
-			if(tag.equals("�궇吏�")) {
+			if(tag.equals("날짜")) {
 				String query = "SELECT createDt FROM region";
 			
 				ResultSet res = stmt.executeQuery(query);
@@ -82,7 +82,7 @@ public class DBmanager {
 					i++;
 				}
 				
-			}else if(tag.equals("吏��뿭")){
+			}else if(tag.equals("지역")){
 				String query = "SELECT * FROM regionName";
 				
 				ResultSet res = stmt.executeQuery(query);
@@ -90,7 +90,7 @@ public class DBmanager {
 				while(res.next()) {
 					str += res.getString("Name")+" ";
 				}
-			}else if(tag.equals("援�媛�")){
+			}else if(tag.equals("국가")){
 				String query = "SELECT nationNm FROM contry";
 				
 				ResultSet res = stmt.executeQuery(query);
@@ -120,9 +120,9 @@ public class DBmanager {
 		return str;
 	}
 	
-	void insertData(String s,String tag) { // 30�씪媛꾩쓽 肄붾줈�굹 �젙蹂대�� �궫�엯�빐二쇰뒗 硫붿냼�뱶
+	void insertData(String s,String tag) { // 30일간의 코로나 정보를 삽입해주는 메소드
 		String str = null;
-		String[] reginfo = s.split("/"); // �븳以꾨줈 諛쏆� 媛믩뱾�쓣 �걡�뼱以�
+		String[] reginfo = s.split("/"); // 한줄로 받은 값들을 끊어줌
 		String[] hosinfo = s.split("/");
 		String[] coninfo = s.split("/");
 		
@@ -132,7 +132,7 @@ public class DBmanager {
 			cnt = DriverManager.getConnection(url,user,pw);
 			stmt = cnt.createStatement();
 			
-			if(tag.equals("reg")) { //�깭洹멸컪�뿉 �뵲�씪 ���옣�릺�뒗 媛믪씠 �떎由�
+			if(tag.equals("reg")) { //태그값에 따라 저장되는 값이 다름
 				str = "INSERT INTO region VALUES ("
 						+ "'"+reginfo[0]+"','"+ reginfo[1] +"','"+reginfo[2]+"','"
 						+reginfo[3]+"','"+reginfo[4]+"')";
@@ -152,24 +152,24 @@ public class DBmanager {
 			
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
-			System.out.println("insert硫붿냼�뱶");
+			System.out.println("insert메소드");
 		}
 		
 		
 	}
 
-	String defInfoQuery(String s,String tag) {//肄붾줈�굹�젙蹂대�� 由ы꽩�븯�뒗 硫붿냼�뱶 援��궡/�쇅
+	String defInfoQuery(String s,String tag) {//코로나정보를 리턴하는 메소드 국내/외
 		String data[] = s.split("/");
 		String query = null;
 		String info = "";
-		SimpleDateFormat simple = new SimpleDateFormat("yyyy�뀈 MM�썡 dd�씪 09�떆");
+		SimpleDateFormat simple = new SimpleDateFormat("yyyy년 MM월 dd일 09시");
 		String date = simple.format(new Date());
 		System.out.println(data[1]);
 		
 		try {
 			cnt = DriverManager.getConnection(url,user,pw);
 			stmt = cnt.createStatement();
-			if(tag.equals("援��궡")) {
+			if(tag.equals("국내")) {
 				query = "SELECT * FROM region WHERE createDt='"
 						+ data[2]+"' and gubun='"+data[1]+"'";
 				ResultSet res = stmt.executeQuery(query);
@@ -190,10 +190,11 @@ public class DBmanager {
 			
 		}catch(Exception e) {
 			e.getStackTrace();
-			System.out.println("defInfoQuery硫붿냼�뱶 臾몄젣");
+			System.out.println("defInfoQuery메소드 문제");
 		}
 		
 		return info;
 	}
 	
 }
+
